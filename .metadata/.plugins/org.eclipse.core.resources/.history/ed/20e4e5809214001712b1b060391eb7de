@@ -1,0 +1,9 @@
+package px.towns;
+
+public class town {
+//Objet Ville
+	public boolean load(String TownName)
+	{
+		return false;
+	}
+}

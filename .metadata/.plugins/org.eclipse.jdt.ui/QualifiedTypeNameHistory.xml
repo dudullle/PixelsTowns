@@ -3,4 +3,18 @@
 <fullyQualifiedTypeName name="org.bukkit.plugin.java.JavaPlugin"/>
 <fullyQualifiedTypeName name="org.bukkit.command.CommandExecutor"/>
 <fullyQualifiedTypeName name="org.bukkit.event.Listener"/>
+<fullyQualifiedTypeName name="org.bukkit.World"/>
+<fullyQualifiedTypeName name="px.blocks.blockType"/>
+<fullyQualifiedTypeName name="org.bukkit.entity.Player"/>
+<fullyQualifiedTypeName name="px.blocks.roadBlock"/>
+<fullyQualifiedTypeName name="java.io.InputStream"/>
+<fullyQualifiedTypeName name="java.io.InputStreamReader"/>
+<fullyQualifiedTypeName name="java.io.BufferedReader"/>
+<fullyQualifiedTypeName name="java.io.FileInputStream"/>
+<fullyQualifiedTypeName name="java.io.PrintWriter"/>
+<fullyQualifiedTypeName name="java.io.FileWriter"/>
+<fullyQualifiedTypeName name="java.util.ArrayList"/>
+<fullyQualifiedTypeName name="px.towns.town"/>
+<fullyQualifiedTypeName name="px.main.pluginMain"/>
+<fullyQualifiedTypeName name="org.bukkit.Bukkit"/>
 </qualifiedTypeNameHistroy>

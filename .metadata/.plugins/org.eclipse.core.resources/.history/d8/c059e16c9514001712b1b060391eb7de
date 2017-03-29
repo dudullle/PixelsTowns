@@ -1,0 +1,7 @@
+package px.blocks;
+
+public abstract class blockType {
+	abstract int blocId = 0; //0 = vide
+	abstract boolean build();
+	
+}

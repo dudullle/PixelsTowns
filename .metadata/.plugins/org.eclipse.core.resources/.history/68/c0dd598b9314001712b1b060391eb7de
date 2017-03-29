@@ -1,0 +1,16 @@
+package px.towns;
+
+public class townBlock {
+	public int xCoord = 0; //Coordonées en X (ATTENTION carrés de 16*16)
+	public int yCoord = 0; //Coordonées en Y
+	public int groundLVL = 0; // Niveau du sol
+	
+	public void load(String BlockFile)
+	{
+		
+	}
+	public void save(String BlockFile)
+	{
+		
+	}
+}

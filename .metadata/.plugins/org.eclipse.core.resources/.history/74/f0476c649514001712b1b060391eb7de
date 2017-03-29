@@ -1,0 +1,7 @@
+package px.blocks;
+
+public class roadBlock extends blockType{
+	//CLASSE ROUTE
+	
+
+}

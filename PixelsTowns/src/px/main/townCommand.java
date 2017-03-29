@@ -1,4 +1,4 @@
-package px.towny.main;
+package px.main;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

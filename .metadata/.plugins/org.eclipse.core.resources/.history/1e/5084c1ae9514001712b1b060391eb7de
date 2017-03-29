@@ -1,0 +1,10 @@
+package px.blocks;
+
+public abstract class blockType {
+	
+	public int blocId = 0; //0 = vide
+	abstract boolean build();
+	abstract boolean improve();
+	abstract boolean repair();
+	abstract void doTick();
+}

@@ -1,0 +1,12 @@
+package px.blocks;
+
+public class roadBlock extends blockType{
+
+	@Override
+	boolean build() {
+		return false;
+	}
+	//CLASSE ROUTE
+	
+
+}

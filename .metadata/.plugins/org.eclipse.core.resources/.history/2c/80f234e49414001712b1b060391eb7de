@@ -1,0 +1,5 @@
+package px.blocks;
+
+public class blockType {
+	public int blocId = 0; //0 = vide
+}
