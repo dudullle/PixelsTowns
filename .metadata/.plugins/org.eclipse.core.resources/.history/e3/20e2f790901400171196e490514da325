@@ -1,0 +1,7 @@
+package px.towny.main;
+
+import org.bukkit.command.CommandExecutor;
+
+public class townCommand implements CommandExecutor{
+
+}

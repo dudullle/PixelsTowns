@@ -1,0 +1,11 @@
+main: MainRP.StartingClass
+name: PixelsRP
+version: 1.0
+author: Dudullle for PixelsCrafters
+description: Plugin de RP serveur PixelsCrafters
+commands:
+  rp:
+    description: Ouvrir le panneau de controle
+    usage: /rp
+    permission: pixelsrp.cp
+    permission-message: Vous ne pouvez pas faire cette commande
