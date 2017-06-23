@@ -1,0 +1,123 @@
+package rp.utilities;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import org.bukkit.entity.Player;
+
+import com.mysql.jdbc.Connection;
+import com.mysql.jdbc.Statement;
+import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+
+public class databaseManager {
+	
+	static MysqlDataSource dataSource = new MysqlDataSource();
+	static Connection conn;
+	
+	public static void initPlayer(Player p)
+	{
+		
+		dataSource.setUser("root");
+		dataSource.setPassword("");
+		dataSource.setServerName("localhost");
+		dataSource.setDatabaseName("plugins");
+		
+
+		try {
+			conn = (Connection) dataSource.getConnection();
+			Statement stmt = (Statement) conn.createStatement();
+			int i = 0;
+
+			ResultSet rs = stmt.executeQuery("SELECT * FROM `USERS` WHERE `UUID` = '" + p.getUniqueId().toString() + "'");
+			
+			while(rs.next()){ 
+				//traitement des autres lignes 
+				i+=1;
+			} 
+			rs.close();
+			if(i == 0)
+			{
+				stmt.executeUpdate("INSERT INTO `USERS` (`ID` ,`UUID`, `NAME`, `PERMS`, `ORG_ID`, `MISSION`, `SUB_MISSION`, `LAST_LOCATION`) VALUES (NULL,'"
+						+ p.getUniqueId().toString() + "', '"
+						+ p.getDisplayName() + "', "
+						+ "'0', "
+						+ "'0', "
+						+ "'0', "
+						+ "'0', "
+						+ "'NONE');");
+				p.resetTitle();
+				p.sendTitle("§eBienvenue au monde RP !", "§bCommande principale : /rp");
+			}
+			
+
+
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	public static int getPlayerMission(Player p)
+	{
+		MysqlDataSource dataSource = new MysqlDataSource();
+		dataSource.setUser("root");
+		dataSource.setPassword("");
+		dataSource.setServerName("localhost");
+		dataSource.setDatabaseName("plugins");
+		Connection conn;
+
+		try {
+			conn = (Connection) dataSource.getConnection();
+			Statement stmt = (Statement) conn.createStatement();
+			int i = 0;
+
+			ResultSet rs = stmt.executeQuery("SELECT * FROM `USERS` WHERE `UUID` = '" + p.getUniqueId().toString() + "'");
+
+			while(rs.next()){ 
+				i = rs.getInt("MISSION");
+			} 
+			rs.close();
+			return i;
+
+
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return 0;
+		}
+	}
+	
+	public static int getPlayerSubMission(Player p)
+	{
+		MysqlDataSource dataSource = new MysqlDataSource();
+		dataSource.setUser("root");
+		dataSource.setPassword("");
+		dataSource.setServerName("localhost");
+		dataSource.setDatabaseName("plugins");
+		Connection conn;
+
+		try {
+			conn = (Connection) dataSource.getConnection();
+			Statement stmt = (Statement) conn.createStatement();
+			int i = 0;
+
+			ResultSet rs = stmt.executeQuery("SELECT * FROM `USERS` WHERE `UUID` = '" + p.getUniqueId().toString() + "'");
+
+			while(rs.next()){ 
+				i = rs.getInt("SUB_MISSION");
+			} 
+			rs.close();
+			return i;
+
+
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return 0;
+		}
+	}
+	
+	
+}

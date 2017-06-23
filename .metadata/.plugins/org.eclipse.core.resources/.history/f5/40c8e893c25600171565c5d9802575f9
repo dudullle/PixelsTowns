@@ -1,0 +1,20 @@
+package dModeratorManagerBungee;
+
+import com.mysql.jdbc.Connection;
+
+import net.md_5.bungee.api.plugin.Plugin;
+
+public class Start extends Plugin {
+    @Override
+    public void onEnable() {
+        // You should not put an enable message in your plugin.
+        // BungeeCord already does so
+        getLogger().info("-- DEMARRAGE --");
+        getLogger().info("-- dModeratorManagerBUNGEE --");
+        getLogger().info("-- Par Dudullle - Avec SQL --");
+        getProxy().getPluginManager().registerCommand(this, new HelloWorldCommand());
+        getProxy().getPluginManager().registerListener(this, new EventManager());
+        databaseManager.conn = (Connection)  databaseManager.dataSource.getConnection();
+    }
+    
+}

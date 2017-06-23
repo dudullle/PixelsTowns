@@ -1,0 +1,5 @@
+main: pgenerator.pluginMain
+name: PixelsGenerator
+version: b0.1
+author: Dudullle for PixelsCrafters
+description: generateur de la map ressources

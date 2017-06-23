@@ -1,0 +1,165 @@
+package pgenerator;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Biome;
+import org.bukkit.generator.BlockPopulator;
+import org.bukkit.generator.ChunkGenerator;
+
+
+public class YourGenerator extends ChunkGenerator {
+	
+	List<BlockPopulator> populators = new ArrayList<BlockPopulator>();
+	
+    public YourGenerator() {
+        populators.add(new TreePopulator());
+       // populators.addAll(Bukkit.getWorld("lobby").getPopulators());
+        
+    }
+	
+    public List<BlockPopulator> getDefaultPopulators(World world) {
+        return populators;
+    }
+
+	public byte[][] generateBlockSections(World world, Random random, int Chunkx, int Chunkz, BiomeGrid biomeGrid)
+	{
+		byte[][] result = new byte[world.getMaxHeight() / 16][]; //world height / chunk part height (=16, look above)
+		int x= 0;
+		int z= 0;
+		
+		for(x = 0; x < 16; x++)
+		{
+			for(z = 0; z < 16; z++)
+			{
+				//setBlock(result, x, 0, z, (byte)Material.BEDROCK.getId());
+				Biome b = biomeGrid.getBiome(x, z);
+				int mult = 2;
+				if(b.equals(Biome.OCEAN))
+				{
+					mult = 5;
+				}else if(b.equals(Biome.PLAINS))
+				{
+					mult = 7;
+				}else if(b.equals(Biome.SAVANNA))
+				{
+					mult = 3;
+				}
+				int maxY = mathExpression(Chunkx,Chunkz,x,z, mult);
+		
+				//Océans
+				if(maxY < 45 && maxY >= 40 )
+				{
+					biomeGrid.setBiome(x, z, Biome.BEACHES);
+					setBlock(result, x, maxY , z, (byte)Material.SAND.getId());
+					setBlock(result, x, maxY -1 , z, (byte)Material.SAND.getId());
+					setBlock(result, x, maxY -2 , z, (byte)Material.SAND.getId());
+					generateLine(maxY-3,x,z,result);
+
+				}else if(maxY < 40)
+				{
+					biomeGrid.setBiome(x, z, Biome.OCEAN);
+					int y = 0;
+					for(y = maxY + 1 ; y < 39; y++)
+					{
+						setBlock(result, x, y , z, (byte)Material.WATER.getId());	
+					}
+					setBlock(result, x, maxY , z, (byte)Material.SAND.getId());
+					setBlock(result, x, maxY -1 , z, (byte)Material.SAND.getId());
+					setBlock(result, x, maxY -2 , z, (byte)Material.SAND.getId());
+					generateLine(maxY-3,x,z,result);
+
+				}else if(b.equals(Biome.RIVER))
+				{
+					setBlock(result, x, maxY , z, (byte)Material.WATER.getId());
+					setBlock(result, x, maxY -1 , z, (byte)Material.SAND.getId());
+					setBlock(result, x, maxY -2 , z, (byte)Material.SAND.getId());
+					generateLine(maxY-3,x,z,result);
+
+				}else
+				{
+					setBlock(result, x, maxY , z, (byte)Material.GRASS.getId());
+					setBlock(result, x, maxY -1 , z, (byte)Material.DIRT.getId());
+					setBlock(result, x, maxY -2 , z, (byte)Material.DIRT.getId());
+					generateLine(maxY-3,x,z,result);
+				}
+
+				
+
+
+
+			}
+		}
+		return result;
+	}
+
+	
+	public void generateLine(int maxY, int x, int z, byte[][] result)
+	{
+		int y = 0;
+		for(y = 0 ; y <= maxY; y++)
+		{
+			setBlock(result, x, y , z, (byte)Material.STONE.getId());	
+		}
+	}
+	void setBlock(byte[][] result, int x, int y, int z, byte blkid) {
+		// is this chunk part already initialized?
+		if (result[y >> 4] == null) {
+			// Initialize the chunk part
+			result[y >> 4] = new byte[4096];
+		}
+		// set the block (look above, how this is done)
+		result[y >> 4][((y & 0xF) << 8) | (z << 4) | x] = blkid;
+
+	}
+	int mathExpression(int x, int z ,int x1,int z1, int BiomeMultiplier)
+	{
+		return (int) Math.max(Math.min(stretchedNoise2(x*16+x1,z*16+z1,30)*BiomeMultiplier*15,200) + 50,0*Math.abs(Math.cos(BiomeMultiplier * 0.001 * x*16*16 * z)));
+	}
+	//TEST
+
+
+	static float noise2(int x, int y) {
+		int n = x + y * 57;
+		n = (n << 13) ^ n;
+		return (float) (1.0-((n*(n*n*15731+789221)+1376312589)&0x7fffffff)/1073741824.0);
+	}
+	static float stretchedNoise2(float x_float, float y_float, float stretch) {
+
+		x_float /= stretch;
+		y_float /= stretch;
+
+		int x = (int) Math.floor(x_float);
+		int y = (int) Math.floor(y_float);
+
+		float fractional_X = x_float - x;
+		float fractional_Y = y_float - y;
+
+		double[] p = new double[4];
+		for (int j = 0; j < 4; j++) {
+			double[] p2 = new double[4];
+			for (int i = 0; i < 4; i++) {
+				p2[i] = noise2(x + i - 1, y + j - 1);
+			}
+
+			p[j] = cubicInterp(p2, fractional_X);
+		}
+
+		return (float) cubicInterp(p, fractional_Y);
+	}
+	public static double cubicInterp(double[] p, double x) {
+		return cubicInterp(p[0],p[1],p[2],p[3], x);
+	}
+	public static double cubicInterp(double v0, double v1, double v2, double v3, double x) {
+		double P = (v3 - v2) - (v0 - v1);
+		double Q = (v0 - v1) - P;
+		double R = v2 - v0;
+		double S = v1;
+		return P * x * x * x + Q * x * x + R * x + S;
+	}
+
+}

@@ -1,0 +1,312 @@
+package d.Moderator.Utilities;
+
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import com.mysql.jdbc.Connection;
+import com.mysql.jdbc.Statement;
+import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+
+import d.Moderator.Players.dPlayer;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+
+public class databaseManager {
+
+	//public static Connection conn;
+	public static Connection getConn()
+	{
+		MysqlDataSource dataSource = new MysqlDataSource();
+    	dataSource.setUser("db543048");
+		dataSource.setPassword("dn5pc1sg9");
+		dataSource.setServerName("sql-7.verygames.net");
+		dataSource.setDatabaseName("db543048");
+		Connection conn;
+		try {
+			conn = (Connection)  dataSource.getConnection();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			conn = null
+			e.printStackTrace();
+		}
+			    
+		return conn;
+		
+	}
+	public static void initPlayer(String PlayerName, String ip)
+	{
+
+
+	
+
+		try {
+			
+			Statement stmt = (Statement) conn.createStatement();
+			int i = 0;
+
+			ResultSet rs = stmt.executeQuery("SELECT * FROM `modo_players` WHERE `NAME` = '" + PlayerName + "'");
+
+			while(rs.next()){ 
+				i+=1;
+			} 
+			rs.close();
+			if(i == 0)
+			{
+				stmt.executeUpdate("INSERT INTO `modo_players` (`ID`, `NAME`, `BANNED`, `STATUS`) VALUES (NULL,'"
+						+ PlayerName + "', "
+						+ "'0', "
+						+ "'0'"
+						+ ");");
+			}
+
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+
+			e.printStackTrace();
+		}
+	}
+	public static void addIP(String PlayerName, String ip)
+	{
+		try {
+			Statement stmt = (Statement) conn.createStatement();
+
+			int id = 0;
+
+			ResultSet rs = stmt.executeQuery("SELECT `id` FROM `modo_players` WHERE `NAME` = '" + PlayerName + "'");
+
+			while(rs.next()){ 
+				id = rs.getInt("id");
+			} 
+			rs.close();
+			ResultSet rs2 = stmt.executeQuery("SELECT `ip` FROM `modo_ip` WHERE `id` = '" + id + "'");
+			int i = 0;
+			while(rs2.next()){ 
+				i += 1;
+			} 
+			if(i == 0)
+			{
+				stmt.executeUpdate("INSERT INTO `modo_ip` (`ipid`, `ip`, `id`) VALUES (NULL,'"
+						+ ip + "', '"
+						+ id + "'"
+						+ ");");
+			}
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public static ArrayList<String> getIPS(String PlayerName)
+	{
+		ArrayList<String> ips = new ArrayList<String>();
+		try
+		{
+			Statement stmt = (Statement) conn.createStatement();
+
+			int id = 0;
+
+			ResultSet rs = stmt.executeQuery("SELECT `id` FROM `modo_players` WHERE `NAME` = '" + PlayerName + "'");
+
+			while(rs.next()){ 
+				id = rs.getInt("id");
+			} 
+			rs.close();
+			ResultSet rs2 = stmt.executeQuery("SELECT `ip` FROM `modo_ip` WHERE `id` = '" + id + "'");
+			while(rs2.next()){ 
+				ips.add(rs2.getString("ip"));
+			} 
+			rs2.close();
+		}
+		catch(Exception ex)
+		{
+
+		}
+		return ips;
+	}
+	public static ArrayList<String> getAllAccounts(String PlayerName, dPlayer dp)
+	{
+		ArrayList<String> playerNames = new ArrayList<String>();
+		ArrayList<String> ids = new ArrayList<String>();
+		try
+		{
+			Statement stmt = (Statement) conn.createStatement();
+
+			for(String ip: dp.Ips)
+			{
+				//ProxyServer.getInstance().getLogger().info(ip);
+				ResultSet rs2 = stmt.executeQuery("SELECT `id` FROM `modo_ip` WHERE `ip` = '" + ip + "'");
+				while(rs2.next()){ 
+
+					ids.add(rs2.getString("id"));
+					//ProxyServer.getInstance().getLogger().info(ids.toString());
+				} 
+				rs2.close();
+			}
+
+			for(String id : ids)
+			{
+				//ProxyServer.getInstance().getLogger().info(id);
+				ResultSet rs = stmt.executeQuery("SELECT `NAME` FROM `modo_players` WHERE `id` = '" + id + "'");
+				while(rs.next()){ 
+					playerNames.add(rs.getString("NAME"));
+				}
+				rs.close();
+			}
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		return playerNames;
+	}
+	public static String getApprouved(String PlayerName)
+	{
+		int i = 0;
+		try
+		{
+			Statement stmt = (Statement) conn.createStatement();
+			ResultSet rs = stmt.executeQuery("SELECT `STATUS` FROM `modo_players` WHERE `NAME` = '" + PlayerName + "'");
+			while(rs.next()){ 
+				i = rs.getInt("STATUS");
+			}
+			rs.close();
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		if(i == 0)
+		{
+			return "§7";
+		}else if(i == 1)
+		{
+			return "§6";
+		}else if(i == 2)
+		{
+			return "§a";
+		}else if(i == 3)
+		{
+			return "§a";
+		}else
+		{
+			return "§8";
+		}
+
+	}
+	public static void setApprouved(String PlayerName, int status)
+	{
+		try
+		{
+			Statement stmt = (Statement) conn.createStatement();
+			stmt.executeUpdate("UPDATE `modo_players` SET `STATUS` = '"+ status +"' WHERE `modo_players`.`NAME` = '" + PlayerName + "';");
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+	}
+	public static void banPlayer(String PlayerName, String banReason)
+	{
+		try
+		{
+			Statement stmt = (Statement) conn.createStatement();
+			stmt.executeUpdate("UPDATE `modo_players` SET `BANNED` = '"+ 1 +"' WHERE `modo_players`.`NAME` = '" + PlayerName + "';");
+			stmt.executeUpdate("UPDATE `modo_players` SET `BANREASON` = '"+ banReason +"' WHERE `modo_players`.`NAME` = '" + PlayerName + "';");
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+	}
+	public static void unbanPlayer(String PlayerName)
+	{
+		try
+		{
+			Statement stmt = (Statement) conn.createStatement();
+			stmt.executeUpdate("UPDATE `modo_players` SET `BANNED` = '"+ 0 +"' WHERE `modo_players`.`NAME` = '" + PlayerName + "';");
+
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+	}
+	public static int getBanned(String PlayerName)
+	{
+		int i = 0;
+		try
+		{
+			Statement stmt = (Statement) conn.createStatement();
+			ResultSet rs = stmt.executeQuery("SELECT `BANNED` FROM `modo_players` WHERE `NAME` = '" + PlayerName + "'");
+			while(rs.next()){ 
+				i = rs.getInt("BANNED");
+			}
+			rs.close();
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		return i;
+	}
+	public static String getBannedReason(String PlayerName)
+	{
+		String i = "";
+		try
+		{
+			Statement stmt = (Statement) conn.createStatement();
+			ResultSet rs = stmt.executeQuery("SELECT `BANREASON` FROM `modo_players` WHERE `NAME` = '" + PlayerName + "'");
+			while(rs.next()){ 
+				i = rs.getString("BANREASON");
+			}
+			rs.close();
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		return i;
+	}
+	public static boolean getIpBanned(String ip)
+	{
+		try
+		{
+			ArrayList<String> playerNames = new ArrayList<String>();
+			ArrayList<String> ids = new ArrayList<String>();
+			try
+			{
+				Statement stmt = (Statement) conn.createStatement();
+				ResultSet rs2 = stmt.executeQuery("SELECT `id` FROM `modo_ip` WHERE `ip` = '" + ip + "'");
+				while(rs2.next()){ 
+
+					ids.add(rs2.getString("id"));
+				} 
+				rs2.close();
+
+
+				for(String id : ids)
+				{
+					ResultSet rs = stmt.executeQuery("SELECT `BANNED` FROM `modo_players` WHERE `id` = '" + id + "'");
+					while(rs.next()){ 
+						if(rs.getInt("BANNED") == 1)
+						{
+							return true;
+						}
+					}
+					rs.close();
+				}
+			}
+			catch(Exception ex)
+			{
+			}
+		}
+		catch(Exception ex)
+		{
+		}
+		return false;
+	}
+}

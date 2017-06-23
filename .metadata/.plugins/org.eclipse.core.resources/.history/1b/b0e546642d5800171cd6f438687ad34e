@@ -1,0 +1,392 @@
+package d.Moderator.Utilities;
+
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import com.mysql.jdbc.Connection;
+import com.mysql.jdbc.Statement;
+import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+
+import d.Moderator.Players.dPlayer;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+
+public class databaseManager {
+
+	//public static Connection conn;
+	public static Connection getConn(int i)
+	{
+		MysqlDataSource dataSource = new MysqlDataSource();
+		dataSource.setUser("db543048");
+		dataSource.setPassword("dn5pc1sg9");
+		dataSource.setServerName("sql-7.verygames.net");
+		dataSource.setDatabaseName("db543048");
+		Connection conn;
+		try {
+			conn = (Connection)  dataSource.getConnection();
+			return conn;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			for (ProxiedPlayer p : ProxyServer.getInstance().getPlayers()) {
+				if(p.hasPermission("modo.notify"))
+				{
+					p.sendMessage("§4-> ERREUR D'ACCES A LA BDD <- tentative en cours :" + i);
+				}
+			}
+			return getConn(i + 1);
+		}
+		
+	}
+	public static void initPlayer(String PlayerName, String ip)
+	{
+		Connection conn = getConn(0);
+		ResultSet rs = null;
+		Statement stmt = null;
+
+		try {
+			stmt = (Statement) conn.createStatement();
+			int i = 0;
+			rs = stmt.executeQuery("SELECT * FROM `modo_players` WHERE `NAME` = '" + PlayerName + "'");
+			while(rs.next()){ 
+				i+=1;
+			} 
+			rs.close();
+			if(i == 0)
+			{
+				stmt.executeUpdate("INSERT INTO `modo_players` (`ID`, `NAME`, `BANNED`, `STATUS`) VALUES (NULL,'"
+						+ PlayerName + "', "
+						+ "'0', "
+						+ "'0'"
+						+ ");");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try { rs.close(); } catch (Exception e) { /* ignored */ }
+			try { stmt.close(); } catch (Exception e) { /* ignored */ }
+			try { conn.close(); } catch (Exception e) { /* ignored */ }
+		}
+
+	}
+	public static void addIP(String PlayerName, String ip)
+	{
+		Connection conn = getConn(0);
+		ResultSet rs = null;
+		ResultSet rs2 = null;
+		Statement stmt = null;
+
+		try {
+			stmt = (Statement) conn.createStatement();
+
+			int id = 0;
+
+			rs = stmt.executeQuery("SELECT `id` FROM `modo_players` WHERE `NAME` = '" + PlayerName + "'");
+
+			while(rs.next()){ 
+				id = rs.getInt("id");
+			} 
+			rs2 = stmt.executeQuery("SELECT `ip` FROM `modo_ip` WHERE `id` = '" + id + "'");
+			int i = 0;
+			String oldip = "";
+			while(rs2.next()){
+				i = 1
+				oldip = rs.getString("ip");
+			} 
+			if(i == 0)
+			{
+				stmt.executeUpdate("INSERT INTO `modo_ip` (`ipid`, `ip`, `id`) VALUES (NULL,'"
+						+ ip + "', '"
+						+ id + "'"
+						+ ");");
+			}
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally {
+			try { rs.close(); } catch (Exception e) { /* ignored */ }
+			try { rs2.close(); } catch (Exception e) { /* ignored */ }
+			try { stmt.close(); } catch (Exception e) { /* ignored */ }
+			try { conn.close(); } catch (Exception e) { /* ignored */ }
+		}
+	}
+
+	public static ArrayList<String> getIPS(String PlayerName)
+	{
+		Connection conn = getConn(0);
+		ResultSet rs = null;
+		ResultSet rs2 = null;
+		Statement stmt = null;
+
+		ArrayList<String> ips = new ArrayList<String>();
+		try
+		{
+			stmt = (Statement) conn.createStatement();
+
+			int id = 0;
+
+			rs = stmt.executeQuery("SELECT `id` FROM `modo_players` WHERE `NAME` = '" + PlayerName + "'");
+
+			while(rs.next()){ 
+				id = rs.getInt("id");
+			} 
+			rs.close();
+			rs2 = stmt.executeQuery("SELECT `ip` FROM `modo_ip` WHERE `id` = '" + id + "'");
+			while(rs2.next()){ 
+				ips.add(rs2.getString("ip"));
+			} 
+			rs2.close();
+		}
+		catch(Exception ex)
+		{
+
+		}finally {
+			try { rs.close(); } catch (Exception e) { /* ignored */ }
+			try { rs2.close(); } catch (Exception e) { /* ignored */ }
+			try { stmt.close(); } catch (Exception e) { /* ignored */ }
+			try { conn.close(); } catch (Exception e) { /* ignored */ }
+		}
+		return ips;
+	}
+	public static ArrayList<String> getAllAccounts(String PlayerName, dPlayer dp)
+	{
+		Connection conn = getConn(0);
+		ResultSet rs = null;
+		ResultSet rs2 = null;
+		Statement stmt = null;
+		ArrayList<String> playerNames = new ArrayList<String>();
+		ArrayList<String> ids = new ArrayList<String>();
+		try
+		{
+			stmt = (Statement) conn.createStatement();
+
+			for(String ip: dp.Ips)
+			{
+				//ProxyServer.getInstance().getLogger().info(ip);
+				rs2 = stmt.executeQuery("SELECT `id` FROM `modo_ip` WHERE `ip` = '" + ip + "'");
+				while(rs2.next()){ 
+
+					ids.add(rs2.getString("id"));
+					//ProxyServer.getInstance().getLogger().info(ids.toString());
+				} 
+				rs2.close();
+			}
+
+			for(String id : ids)
+			{
+				//ProxyServer.getInstance().getLogger().info(id);
+				rs = stmt.executeQuery("SELECT `NAME` FROM `modo_players` WHERE `id` = '" + id + "'");
+				while(rs.next()){ 
+					playerNames.add(rs.getString("NAME"));
+				}
+				rs.close();
+			}
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}finally {
+			try { rs.close(); } catch (Exception e) { /* ignored */ }
+			try { rs2.close(); } catch (Exception e) { /* ignored */ }
+			try { stmt.close(); } catch (Exception e) { /* ignored */ }
+			try { conn.close(); } catch (Exception e) { /* ignored */ }
+		}
+		return playerNames;
+	}
+	public static String getApprouved(String PlayerName)
+	{
+		Connection conn = getConn(0);
+		ResultSet rs = null;
+		Statement stmt = null;
+		int i = 0;
+		try
+		{
+			stmt = (Statement) conn.createStatement();
+			rs = stmt.executeQuery("SELECT `STATUS` FROM `modo_players` WHERE `NAME` = '" + PlayerName + "'");
+			while(rs.next()){ 
+				i = rs.getInt("STATUS");
+			}
+			rs.close();
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}finally {
+			try { rs.close(); } catch (Exception e) { /* ignored */ }
+			try { stmt.close(); } catch (Exception e) { /* ignored */ }
+			try { conn.close(); } catch (Exception e) { /* ignored */ }
+		}
+		if(i == 0)
+		{
+			return "§7";
+		}else if(i == 1)
+		{
+			return "§6";
+		}else if(i == 2)
+		{
+			return "§a";
+		}else if(i == 3)
+		{
+			return "§a";
+		}else
+		{
+			return "§8";
+		}
+
+	}
+	public static void setApprouved(String PlayerName, int status)
+	{
+		Connection conn = getConn(0);
+
+		Statement stmt = null;
+		try
+		{
+			stmt = (Statement) conn.createStatement();
+			stmt.executeUpdate("UPDATE `modo_players` SET `STATUS` = '"+ status +"' WHERE `modo_players`.`NAME` = '" + PlayerName + "';");
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}finally {
+			try { stmt.close(); } catch (Exception e) { /* ignored */ }
+			try { conn.close(); } catch (Exception e) { /* ignored */ }
+		}
+	}
+	public static void banPlayer(String PlayerName, String banReason)
+	{
+		Connection conn = getConn(0);
+
+		Statement stmt = null;
+		try
+		{
+			stmt = (Statement) conn.createStatement();
+			stmt.executeUpdate("UPDATE `modo_players` SET `BANNED` = '"+ 1 +"' WHERE `modo_players`.`NAME` = '" + PlayerName + "';");
+			stmt.executeUpdate("UPDATE `modo_players` SET `BANREASON` = '"+ banReason +"' WHERE `modo_players`.`NAME` = '" + PlayerName + "';");
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}finally {
+			try { stmt.close(); } catch (Exception e) { /* ignored */ }
+			try { conn.close(); } catch (Exception e) { /* ignored */ }
+		}
+	}
+	public static void unbanPlayer(String PlayerName)
+	{
+		Connection conn = getConn(0);
+
+		Statement stmt = null;
+		try
+		{
+			stmt = (Statement) conn.createStatement();
+			stmt.executeUpdate("UPDATE `modo_players` SET `BANNED` = '"+ 0 +"' WHERE `modo_players`.`NAME` = '" + PlayerName + "';");
+
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}finally {
+			try { stmt.close(); } catch (Exception e) { /* ignored */ }
+			try { conn.close(); } catch (Exception e) { /* ignored */ }
+		}
+	}
+	public static int getBanned(String PlayerName)
+	{
+		Connection conn = getConn(0);
+		ResultSet rs = null;
+		Statement stmt = null;
+		int i = 0;
+		try
+		{
+			stmt = (Statement) conn.createStatement();
+			rs = stmt.executeQuery("SELECT `BANNED` FROM `modo_players` WHERE `NAME` = '" + PlayerName + "'");
+			while(rs.next()){ 
+				i = rs.getInt("BANNED");
+			}
+			rs.close();
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}finally {
+			try { rs.close(); } catch (Exception e) { /* ignored */ }
+			try { stmt.close(); } catch (Exception e) { /* ignored */ }
+			try { conn.close(); } catch (Exception e) { /* ignored */ }
+		}
+		return i;
+	}
+	public static String getBannedReason(String PlayerName)
+	{
+		Connection conn = getConn(0);
+		ResultSet rs = null;
+		Statement stmt = null;
+		String i = "";
+		try
+		{
+			stmt = (Statement) conn.createStatement();
+			rs = stmt.executeQuery("SELECT `BANREASON` FROM `modo_players` WHERE `NAME` = '" + PlayerName + "'");
+			while(rs.next()){ 
+				i = rs.getString("BANREASON");
+			}
+			rs.close();
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}finally {
+			try { rs.close(); } catch (Exception e) { /* ignored */ }
+			try { stmt.close(); } catch (Exception e) { /* ignored */ }
+			try { conn.close(); } catch (Exception e) { /* ignored */ }
+		}
+		return i;
+	}
+	public static boolean getIpBanned(String ip)
+	{
+		Connection conn = getConn(0);
+		ResultSet rs = null;
+		ResultSet rs2 = null;
+		Statement stmt = null;
+		try
+		{
+			ArrayList<String> playerNames = new ArrayList<String>();
+			ArrayList<String> ids = new ArrayList<String>();
+			try
+			{
+				 stmt = (Statement) conn.createStatement();
+				 rs2 = stmt.executeQuery("SELECT `id` FROM `modo_ip` WHERE `ip` = '" + ip + "'");
+				while(rs2.next()){ 
+
+					ids.add(rs2.getString("id"));
+				} 
+				rs2.close();
+
+
+				for(String id : ids)
+				{
+					rs = stmt.executeQuery("SELECT `BANNED` FROM `modo_players` WHERE `id` = '" + id + "'");
+					while(rs.next()){ 
+						if(rs.getInt("BANNED") == 1)
+						{
+							return true;
+						}
+					}
+					rs.close();
+				}
+			}
+			catch(Exception ex)
+			{
+			}
+		}
+		catch(Exception ex)
+		{
+		}finally {
+			try { rs.close(); } catch (Exception e) { /* ignored */ }
+			try { rs2.close(); } catch (Exception e) { /* ignored */ }
+			try { stmt.close(); } catch (Exception e) { /* ignored */ }
+			try { conn.close(); } catch (Exception e) { /* ignored */ }
+		}
+		return false;
+	}
+}

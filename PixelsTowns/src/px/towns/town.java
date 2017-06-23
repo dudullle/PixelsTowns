@@ -15,6 +15,7 @@ public class town {
 	
 	public boolean load(String TownName)
 	{
+		
 		return false;
 	}
 	public boolean save()

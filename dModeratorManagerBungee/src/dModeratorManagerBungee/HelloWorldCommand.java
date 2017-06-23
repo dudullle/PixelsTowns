@@ -1,0 +1,124 @@
+package dModeratorManagerBungee;
+
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import d.Moderator.Players.dPlayer;
+import d.Moderator.Utilities.databaseManager;
+import net.md_5.bungee.BungeeTitle;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.plugin.Command;
+import net.md_5.bungee.protocol.packet.Title;
+
+public class HelloWorldCommand extends Command {
+
+	public HelloWorldCommand() {
+		super("modo");
+		// TODO Auto-generated constructor stub
+	}
+	@Override
+	public void execute(CommandSender sender, String[] arg1) {
+		  ProxyServer.getInstance().getScheduler().runAsync(ProxyServer.getInstance().getPluginManager().getPlugin("dModeratorManagerBungee"), new Runnable() {
+			    @Override
+			    public void run() {
+			    	if(sender instanceof ProxiedPlayer){
+						ProxiedPlayer p = (ProxiedPlayer) sender;
+						if(p.hasPermission("modo.command"))
+						{
+							if(arg1.length == 0)
+							{
+								p.sendMessage("§a-->> dModeratorManager <<--");
+								p.sendMessage("§a-------- COMMANDES ---------");
+								p.sendMessage("§b/modo §3: affiche cette aide.");
+								p.sendMessage("§b/modo analyse [pseudo] §3: analyse les doubles comptes."); //OK
+								p.sendMessage("§b/modo verif [pseudo] ip/history §3: affiche la liste des ips ou des connexions du joueur."); //OK
+								p.sendMessage("§b/modo ban [pseudo] [raison]§3: ban-ip dynamique d'une personne (doubles comptes compris)"); //ok
+								p.sendMessage("§b/modo unban [pseudo] §3: déban une personne."); //ok
+								p.sendMessage("§4/modo protect [Pseudo] §3: fonction permettant de bloquer les vols de comptes (si plus de 5 tentatives de déco reco en 1 minute : ban de l'adresse ip)");
+								p.sendMessage("§b/modo alert [pseudo] [message] §3: envoyer un gros message aux joueur."); //OK
+								p.sendMessage("§b/modo kick [pseudo] §3: expulser une personne.");
+								
+							}else if(arg1[0].equalsIgnoreCase("analyse") && arg1.length >= 2)
+							{
+								dPlayer dp = new dPlayer();
+								dp.Ips = databaseManager.getIPS(arg1[1]);
+								//ANALYSE DES DOUBLES COMPTES
+								ArrayList<String> comptes = databaseManager.getAllAccounts(arg1[1], dp);
+								String fComptes = "";
+								for(String s: comptes)
+								{
+									fComptes += databaseManager.getApprouved(s) + s + " ";
+								}
+								p.sendMessage("§2Comptes détectés §6[" + comptes.size() + "] : " + fComptes);
+
+
+							}else if(arg1[0].equalsIgnoreCase("setverif") && arg1.length >= 3)
+							{
+								databaseManager.setApprouved(arg1[1], Integer.parseInt(arg1[2]));
+								p.sendMessage("§7[§bdModeratorManager§7] : Données mises à jour !");
+							}else if(arg1[0].equalsIgnoreCase("ban") && arg1.length >= 3)
+							{
+								String banreason ="";
+								int i = 0;
+								for(String s:  arg1)
+								{
+									if(i>= 2)
+									{
+										banreason += s + " ";
+									}
+									i+=1;
+								}
+								databaseManager.banPlayer(arg1[1], banreason);
+								p.sendMessage("§7[§bdModeratorManager§7] : Joueur banni ! §a("+ arg1[1] + ")");
+							}else if(arg1[0].equalsIgnoreCase("unban") && arg1.length >= 2)
+							{
+								databaseManager.unbanPlayer(arg1[1]);
+								p.sendMessage("§7[§bdModeratorManager§7] : Joueur débanni ! §a("+ arg1[1] + ")");
+								
+								
+							}else if(arg1[0].equalsIgnoreCase("alert") && arg1.length >= 3)
+							{
+								String msg ="§a";
+								int i = 0;
+								for(String s:  arg1)
+								{
+									if(i>= 2)
+									{
+										msg += s + " ";
+									}
+									i+=1;
+								}
+								TextComponent message = new TextComponent(msg);
+								TextComponent message2 = new TextComponent( "§a§lMESSAGE DE " + p.getDisplayName());
+								BungeeTitle t= new BungeeTitle();
+								t.title(message2);
+								
+								t.subTitle(message);
+								t.send(ProxyServer.getInstance().getPlayer(arg1[1]));
+								p.sendMessage("§7[§bdModeratorManager§7] : Message envoyé ! §a("+ arg1[1] + ")");
+							}
+						}else
+						{
+							p.sendMessage("§cVous n'avez pas la permission d'éxécuter cette commande !");
+						}
+
+
+
+					}else{
+						sender.sendMessage(new ComponentBuilder("Cette commande ne peut être effectuée uniquement par un joueur").color(ChatColor.RED).create());
+					}	
+			    }
+			  });
+		
+	}
+
+}

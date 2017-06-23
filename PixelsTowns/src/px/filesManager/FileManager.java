@@ -69,5 +69,14 @@ public class FileManager {
 			pluginMain.towns.add(t);
 		}
 	}
+	public static void saveTowns()
+	{
+
+		for(town s : pluginMain.towns)
+		{
+			s.save();
+			
+		}
+	}
 
 }

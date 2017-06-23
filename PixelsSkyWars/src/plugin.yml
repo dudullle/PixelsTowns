@@ -1,0 +1,11 @@
+main: PixelsSW.main.pluginMain
+name: PixelsSW
+version: 1.0
+author: Dudullle for PixelsCrafters
+description: Plugin de SkyWars
+commands:
+  hg:
+    description: Command de skywars
+    usage: /hg
+    permission: permission.spawn
+    permission-message: Vous ne pouvez pas faire cette commande

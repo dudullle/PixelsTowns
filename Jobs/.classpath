@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="lib" path="C:/Users/Killian/Desktop/JObs/libs/iConomy7.0.6.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Killian/Desktop/JObs/libs/mcMMO-1.5.05-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Killian/Desktop/JObs/libs/MyPet-2.3.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Killian/Desktop/JObs/libs/MythicMobs-2.4.5.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Killian/Desktop/JObs/libs/MythicMobs-4.1.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Killian/Desktop/JObs/libs/WorldEdit6.0.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Killian/Desktop/Server Bungee/spigot2/spigot-1.12.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Killian/Desktop/Server Bungee/spigot2/plugins/Vault.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

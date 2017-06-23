@@ -1,8 +1,0 @@
-package px.blocks;
-
-public class roadBlock extends blockType{
-	public int getID()
-	{
-		return blockID;
-	}
-}

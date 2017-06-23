@@ -1,7 +1,0 @@
-package px.towny.main;
-
-import org.bukkit.plugin.java.JavaPlugin;
-
-public class pluginMain extends JavaPlugin {
-
-}

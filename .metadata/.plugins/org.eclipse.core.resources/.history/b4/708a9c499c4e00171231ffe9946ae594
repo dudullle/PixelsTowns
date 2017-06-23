@@ -1,0 +1,84 @@
+package dModeratorManagerBungee;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.ArrayList;
+
+import d.Moderator.Players.dPlayer;
+import d.Moderator.Utilities.databaseManager;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.PreLoginEvent;
+import net.md_5.bungee.api.plugin.Listener;
+import net.md_5.bungee.event.EventHandler;
+
+public class EventManager implements Listener {
+
+	@EventHandler
+	public void onPostLogin(PreLoginEvent event) {
+		//EVENT
+		//1 : Analyse si proxi
+		
+		//3 : Récup des données dans la DATABASE
+		//4 : Recup des comptes
+		//5 : Analyse si banni
+		//6 : Recup des mails
+		//7 : Envoi du msg en fonction
+
+		//--1--
+		String playerip = event.getConnection().getAddress().getHostString();
+		String playerName = event.getConnection().getName().toString();
+		boolean allowed = true;
+		
+		try
+		{
+			
+			URL url = new URL("http://stpprx2server.altervista.org/algo3.php?ip=" + playerip);
+			BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+
+			String res = in.readLine();in.close();
+			if (res.contains("si_pr"))
+			{
+				event.setCancelReason("§cVPN / PROXI détecté : Merci d'utiliser une connexion normale !\n (PS : les bots ca marche pas chez nous !");
+				event.setCancelled(true);
+				allowed = false;
+				//Notif
+				for (ProxiedPlayer p : ProxyServer.getInstance().getPlayers()) {
+		            if(p.hasPermission("modo.notify"))
+		            {
+		            	p.sendMessage("§cVPN / PROXI : §4" + playerName + "§c avec l'ip :§4 " + playerip);
+		            }
+		        }
+				
+			}
+		}catch(Exception ex)
+		{
+
+		}
+		if(allowed == true)
+		{
+			databaseManager.initPlayer(playerName,playerip);
+			databaseManager.addIP(playerName,playerip);
+			dPlayer dp = new dPlayer();
+			dp.Ips = databaseManager.getIPS(playerName, playerip);
+			//ANALYSE DES DOUBLES COMPTES
+			ArrayList<String> comptes = databaseManager.getAllAccounts(playerName, dp);
+			String fComptes = "";
+			for(String s: comptes)
+			{
+				fComptes += databaseManager.getApprouved(s) + s + ", "
+			}
+			ProxyServer.getInstance().getLogger().info("§aComptes du joueur "+ playerName + " : " + comptes.toString());
+			
+			for (ProxiedPlayer p : ProxyServer.getInstance().getPlayers()) {
+	            if(p.hasPermission("modo.notify"))
+	            {
+	            	p.sendMessage("§a" + playerName + "§2a rejoint le serveur avec l'ip : §6" + playerip);
+	            	p.sendMessage("§2Comptes détectés §6" + comptes.toString());
+	            }
+	        }
+			
+		}
+	}
+}

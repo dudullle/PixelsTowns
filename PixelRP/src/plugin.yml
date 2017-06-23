@@ -1,0 +1,16 @@
+main: rp.main.pluginMain
+name: PixelsRP2
+version: 2.0
+author: Dudullle for PixelsCrafters
+description: RP version 2
+commands:
+  rp:
+    description: Ouvrir le panneau de controle
+    usage: /rp
+    permission: pixelsrp.cp2
+    permission-message: Vous ne pouvez pas faire cette commande
+  rpadm:
+    description: commandes ADMIN
+    usage: /rpadm
+    permission: pixelsrp.cp2
+    permission-message: Vous ne pouvez pas faire cette commande

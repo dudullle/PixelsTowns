@@ -2,27 +2,28 @@ package px.blocks;
 
 public class roadBlock extends blockType{
 	//CLASSE ROUTE
+	
 	@Override
-	boolean build() {
-		this.blocId = 1;
+	public boolean build() {
+		
 		return false;
 	}
 
 
 	@Override
-	boolean improve() {
+	public boolean improve() {
 
 		return false;
 	}
 
 	@Override
-	boolean repair() {
+	public boolean repair() {
 
 		return false;
 	}
 
 	@Override
-	void doTick() {
+	public void doTick() {
 
 		
 	}
